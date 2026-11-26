@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <conio.h>
+#include <windows.h>
+#include <stdlib.h>
+
+int width = 20, height = 20;
+int x, y, fruitX, fruitY, score;
+int tailX[100], tailY[100], nTail, flag;
+
+void setup() {
+    flag = 0;
+    x = width / 2;
+    y = height / 2;
+    fruitX = rand() % width;
+    fruitY = rand() % height;
+    score = 0;
+    nTail = 0;
+}
+
+void draw() {
+    int i, j, k, pr;
+    system("cls");
+    printf("SNAKE GAME  SCORE: %d\n", score);
+    for (i = 0; i < height + 2; i++) {
+        for (j = 0; j < width + 2; j++) {
+            if (i == 0 || i == height + 1 || j == 0 || j == width + 1)
+                printf("#");
+            else if (i == y + 1 && j == x + 1)
+                printf("O");
+            else if (i == fruitY + 1 && j == fruitX + 1)
+                printf("F");
+            else {
+                pr = 0;
+                for (k = 0; k < nTail; k++) {
+                    if (tailX[k] == j - 1 && tailY[k] == i - 1) {
+                        printf("o");
+                        pr = 1;
+                    }
+                }
+                if (pr == 0) printf(" ");
+            }
+        }
+        printf("\n");
+    }
+    printf("W=Up S=Down A=Left D=Right X=Exit\n");
+}
+
+void input() {
+    if (kbhit()) {
+        switch (getch()) {
+            case 'a': flag = 1; break;
+            case 'd': flag = 2; break;
+            case 'w': flag = 3; break;
+            case 's': flag = 4; break;
+            case 'x': exit(0);
+        }
+    }
+}
+
+void logic() {
+    int i, prevX, prevY, prev2X, prev2Y;
+    prevX = tailX[0];
+    prevY = tailY[0];
+    tailX[0] = x;
+    tailY[0] = y;
+    for (i = 1; i < nTail; i++) {
+        prev2X = tailX[i];
+        prev2Y = tailY[i];
+        tailX[i] = prevX;
+        tailY[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+    if (flag == 1) x--;
+    if (flag == 2) x++;
+    if (flag == 3) y--;
+    if (flag == 4) y++;
+    if (x < 0 || x >= width || y < 0 || y >= height) exit(0);
+    for (i = 0; i < nTail; i++) {
+        if (tailX[i] == x && tailY[i] == y) exit(0);
+    }
+    if (x == fruitX && y == fruitY) {
+        score = score + 10;
+        nTail++;
+        fruitX = rand() % width;
+        fruitY = rand() % height;
+    }
+}
+
+int main() {
+    setup();
+    while (1) {
+        draw();
+        input();
+        logic();
+        Sleep(100);
+    }
+    return 0;
+}
